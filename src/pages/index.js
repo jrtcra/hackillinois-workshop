@@ -1,6 +1,30 @@
+import { teardown } from "@mui/utils/useIsFocusVisible";
 import Head from "next/head";
+import { useEffect, useState, useCallback } from "react";
 
 export default function Home() {
+    const [pizzas, setPizzas] = useState("");
+    const [searchText, setSearchText] = useState(null);
+    useState([]);
+
+    useEffect(() => {
+        fetch("/api/pizzas")
+            .then((res) => {
+                return res.json();
+            })
+            .then((data) => {
+                setPizzas(data.pizzas);
+            });
+    }, []);
+
+    const searchInputHandler = useCallback((event) => {
+        setSearchText(event.target.value);
+    }, []);
+
+    const finalPizzas = pizzas.filter((pizza) => {
+        return pizza.name.includes(searchText);
+    });
+
     return (
         <>
             <Head>
@@ -15,7 +39,18 @@ export default function Home() {
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main></main>
+            <main>
+                <input
+                    type={"text"}
+                    name={"search"}
+                    onchange={searchInputHandler}
+                />
+                <ul>
+                    {finalPizzas.map((pizza, index) => {
+                        return <li key={index}>{pizza.name}</li>;
+                    })}
+                </ul>
+            </main>
         </>
     );
 }
